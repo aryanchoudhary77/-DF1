@@ -122,6 +122,53 @@ async def seed_data():
             outstanding_amount=150000.0,
             wallet_balance=25000.0
         )
+@api_router.get("/orders")
+async def get_orders(dealer: dict = Depends(get_current_dealer)):
+    orders = await db.orders.find({"dealer_id": dealer["id"]}).sort("created_at", -1).to_list(100)
+    for order in orders:
+        if "_id" in order:
+            order["_id"] = str(order["_id"])
+    return orders
+
+class AIRecommendationRequest(BaseModel):
+    crop_type: str
+    disease: str
+    season: str
+    region: str
+
+from emergentintegrations.llm.chat import LlmChat, UserMessage
+@api_router.post("/ai/recommend")
+async def get_ai_recommendation(req: AIRecommendationRequest, dealer: dict = Depends(get_current_dealer)):
+    try:
+        api_key = os.environ.get("EMERGENT_LLM_KEY")
+        if not api_key:
+            raise HTTPException(status_code=500, detail="AI service not configured")
+            
+        chat = LlmChat(
+            api_key=api_key,
+            session_id=str(uuid.uuid4()),
+            system_message="You are an expert agricultural AI assistant. You help dealers recommend the best products (seeds, pesticides, fertilizers) based on crop, disease, season, and region. Provide a concise, practical recommendation with dosages and a spray schedule."
+        ).with_model("openai", "gpt-4o")
+        
+        prompt = f"Crop: {req.crop_type}\nDisease/Problem: {req.disease}\nSeason: {req.season}\nRegion: {req.region}\nPlease recommend products, dosage, and spray schedule."
+        user_message = UserMessage(text=prompt)
+        
+        response = await chat.send_message(user_message)
+        # Handle different response types
+        if isinstance(response, str):
+            recommendation_text = response
+        elif hasattr(response, 'text'):
+            recommendation_text = response.text
+        elif hasattr(response, 'content'):
+            recommendation_text = response.content
+        else:
+            recommendation_text = str(response)
+        return {"recommendation": recommendation_text}
+    except Exception as e:
+        logger.error(f"AI recommendation error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get recommendation")
+
+
         await db.dealers.insert_one(new_dealer.dict())
         logger.info("Seeded initial dealer.")
 

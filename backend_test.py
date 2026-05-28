@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Backend API Testing Script for Agri Dealer Application
-Tests: /api/auth/login, /api/auth/verify, /api/dashboard, /api/products
+Tests: /api/auth/login, /api/auth/verify, /api/dashboard, /api/products, /api/orders, /api/ai/recommend
 """
 
 import requests
@@ -13,7 +13,7 @@ from typing import Dict, Any
 BACKEND_URL = "https://agri-dealer-hub-1.preview.emergentagent.com/api"
 
 # Test credentials
-TEST_MOBILE = "1234567890"
+TEST_MOBILE = "9979923782"
 TEST_OTP = "1234"
 
 class Colors:
@@ -265,6 +265,85 @@ def test_products_with_category() -> Dict[str, Any]:
         print_error(f"Products category filter test failed: {str(e)}")
         return {"success": False, "error": str(e)}
 
+def test_orders(access_token: str) -> Dict[str, Any]:
+    """Test GET /api/orders"""
+    print_test("GET /api/orders")
+    
+    url = f"{BACKEND_URL}/orders"
+    headers = {"Authorization": f"Bearer {access_token}"}
+    
+    try:
+        print_info(f"URL: {url}")
+        print_info(f"Authorization: Bearer {access_token[:20]}...")
+        
+        response = requests.get(url, headers=headers, timeout=10)
+        
+        print_info(f"Status Code: {response.status_code}")
+        print_info(f"Response: {json.dumps(response.json(), indent=2)}")
+        
+        if response.status_code == 200:
+            data = response.json()
+            if isinstance(data, list):
+                print_success(f"Orders API working correctly - {len(data)} orders found")
+                if len(data) > 0:
+                    print_info(f"Sample order ID: {data[0].get('id', 'N/A')}")
+                    # Check order structure
+                    required_fields = ['id', 'dealer_id', 'items', 'total_amount', 'order_status']
+                    missing_fields = [f for f in required_fields if f not in data[0]]
+                    if missing_fields:
+                        print_warning(f"Order missing fields: {missing_fields}")
+                return {"success": True, "data": data}
+            else:
+                print_error("Response is not a list")
+                return {"success": False, "error": "Invalid response structure"}
+        else:
+            print_error(f"Orders request failed with status {response.status_code}")
+            return {"success": False, "error": response.text}
+            
+    except Exception as e:
+        print_error(f"Orders request failed: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+def test_ai_recommend(access_token: str) -> Dict[str, Any]:
+    """Test POST /api/ai/recommend"""
+    print_test("POST /api/ai/recommend")
+    
+    url = f"{BACKEND_URL}/ai/recommend"
+    headers = {"Authorization": f"Bearer {access_token}"}
+    payload = {
+        "crop_type": "Cotton",
+        "disease": "Pests",
+        "season": "Summer",
+        "region": "Maharashtra"
+    }
+    
+    try:
+        print_info(f"URL: {url}")
+        print_info(f"Authorization: Bearer {access_token[:20]}...")
+        print_info(f"Payload: {json.dumps(payload, indent=2)}")
+        
+        response = requests.post(url, json=payload, headers=headers, timeout=30)
+        
+        print_info(f"Status Code: {response.status_code}")
+        print_info(f"Response: {json.dumps(response.json(), indent=2)}")
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "recommendation" in data:
+                print_success("AI recommendation API working correctly")
+                print_info(f"Recommendation preview: {data['recommendation'][:100]}...")
+                return {"success": True, "data": data}
+            else:
+                print_error("Response missing 'recommendation' field")
+                return {"success": False, "error": "Invalid response structure"}
+        else:
+            print_error(f"AI recommendation request failed with status {response.status_code}")
+            return {"success": False, "error": response.text}
+            
+    except Exception as e:
+        print_error(f"AI recommendation request failed: {str(e)}")
+        return {"success": False, "error": str(e)}
+
 def main():
     print(f"\n{Colors.BLUE}{'='*60}{Colors.END}")
     print(f"{Colors.BLUE}Agri Dealer Application - Backend API Tests{Colors.END}")
@@ -337,6 +416,28 @@ def main():
         results["passed"] += 1
     else:
         results["failed"] += 1
+    
+    # Test 8: Orders (with auth)
+    if access_token:
+        results["total"] += 1
+        orders_result = test_orders(access_token)
+        if orders_result["success"]:
+            results["passed"] += 1
+        else:
+            results["failed"] += 1
+    else:
+        print_warning("Skipping orders test - no access token")
+    
+    # Test 9: AI Recommendation (with auth)
+    if access_token:
+        results["total"] += 1
+        ai_result = test_ai_recommend(access_token)
+        if ai_result["success"]:
+            results["passed"] += 1
+        else:
+            results["failed"] += 1
+    else:
+        print_warning("Skipping AI recommendation test - no access token")
     
     # Summary
     print(f"\n{Colors.BLUE}{'='*60}{Colors.END}")
