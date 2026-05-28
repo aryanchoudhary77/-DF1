@@ -344,6 +344,61 @@ def test_ai_recommend(access_token: str) -> Dict[str, Any]:
         print_error(f"AI recommendation request failed: {str(e)}")
         return {"success": False, "error": str(e)}
 
+def test_create_order(access_token: str) -> Dict[str, Any]:
+    """Test POST /api/orders"""
+    print_test("POST /api/orders")
+    
+    url = f"{BACKEND_URL}/orders"
+    headers = {"Authorization": f"Bearer {access_token}"}
+    
+    try:
+        # First get products to create an order
+        products_response = requests.get(f"{BACKEND_URL}/products", timeout=10)
+        if products_response.status_code != 200 or not products_response.json():
+            print_error("Cannot fetch products for order creation")
+            return {"success": False, "error": "Products not available"}
+        
+        products = products_response.json()
+        product = products[0]
+        
+        payload = [
+            {
+                "product_id": product["id"],
+                "title": product["title"],
+                "quantity": 2,
+                "price": product["dealer_price"]
+            }
+        ]
+        
+        print_info(f"URL: {url}")
+        print_info(f"Authorization: Bearer {access_token[:20]}...")
+        print_info(f"Payload: {json.dumps(payload, indent=2)}")
+        
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        
+        print_info(f"Status Code: {response.status_code}")
+        print_info(f"Response: {json.dumps(response.json(), indent=2)}")
+        
+        if response.status_code == 200:
+            data = response.json()
+            required_fields = ['id', 'dealer_id', 'items', 'total_amount', 'order_status']
+            if all(field in data for field in required_fields):
+                print_success("Create order API working correctly")
+                print_info(f"Order ID: {data['id']}")
+                print_info(f"Total Amount: ₹{data['total_amount']}")
+                print_info(f"Order Status: {data['order_status']}")
+                return {"success": True, "data": data}
+            else:
+                print_error(f"Response missing required fields: {required_fields}")
+                return {"success": False, "error": "Invalid response structure"}
+        else:
+            print_error(f"Create order request failed with status {response.status_code}")
+            return {"success": False, "error": response.text}
+            
+    except Exception as e:
+        print_error(f"Create order request failed: {str(e)}")
+        return {"success": False, "error": str(e)}
+
 def main():
     print(f"\n{Colors.BLUE}{'='*60}{Colors.END}")
     print(f"{Colors.BLUE}Agri Dealer Application - Backend API Tests{Colors.END}")
@@ -438,6 +493,17 @@ def main():
             results["failed"] += 1
     else:
         print_warning("Skipping AI recommendation test - no access token")
+    
+    # Test 10: Create Order (with auth)
+    if access_token:
+        results["total"] += 1
+        create_order_result = test_create_order(access_token)
+        if create_order_result["success"]:
+            results["passed"] += 1
+        else:
+            results["failed"] += 1
+    else:
+        print_warning("Skipping create order test - no access token")
     
     # Summary
     print(f"\n{Colors.BLUE}{'='*60}{Colors.END}")

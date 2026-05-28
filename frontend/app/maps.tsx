@@ -1,9 +1,9 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import MapView, { Marker, Circle } from 'react-native-maps';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import Map from '@/src/components/Map';
 
 export default function MapsScreen() {
   const router = useRouter();
@@ -30,14 +30,7 @@ export default function MapsScreen() {
         <Text style={styles.headerTitle}>Network & Delivery Map</Text>
       </View>
       <View style={styles.mapContainer}>
-        <MapView style={styles.map} initialRegion={initialRegion}>
-          <Marker coordinate={{ latitude: initialRegion.latitude, longitude: initialRegion.longitude }} title="Your Store" pinColor="blue" />
-          <Circle center={{ latitude: initialRegion.latitude, longitude: initialRegion.longitude }} radius={3000} fillColor="rgba(28, 78, 51, 0.2)" strokeColor="#1C4E33" />
-          
-          {nearbyDealers.map(d => (
-            <Marker key={d.id} coordinate={{ latitude: d.lat, longitude: d.lng }} title={d.title} pinColor="green" />
-          ))}
-        </MapView>
+        <Map initialRegion={initialRegion} nearbyDealers={nearbyDealers} />
       </View>
       <View style={styles.bottomCard}>
         <Text style={styles.cardTitle}>Sales Zone Coverage</Text>
@@ -53,7 +46,6 @@ const styles = StyleSheet.create({
   backBtn: { marginRight: 16 },
   headerTitle: { fontSize: 20, fontWeight: 'bold', color: '#1A231F' },
   mapContainer: { flex: 1 },
-  map: { width: '100%', height: '100%' },
   bottomCard: { position: 'absolute', bottom: 30, left: 20, right: 20, backgroundColor: '#FFFFFF', padding: 20, borderRadius: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 12, elevation: 5 },
   cardTitle: { fontSize: 16, fontWeight: 'bold', color: '#1A231F', marginBottom: 8 },
   cardDesc: { fontSize: 14, color: '#6B7280', lineHeight: 20 }
