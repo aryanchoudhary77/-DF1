@@ -11,6 +11,7 @@ export default function DashboardScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const user = useAuthStore(state => state.user);
+  const router = useRouter();
 
   const fetchDashboard = async () => {
     try {
@@ -79,9 +80,7 @@ export default function DashboardScreen() {
           </View>
         )}
 
-        {/* Ledger Summary */}
-        <View style={styles.ledgerRow}>
-          <View style={styles.ledgerCard}>
+        {/* Action Buttons */}
         <View style={styles.actionGrid}>
           <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/analytics')}>
             <View style={[styles.actionIcon, { backgroundColor: '#E0F4D0' }]}>
@@ -97,6 +96,9 @@ export default function DashboardScreen() {
           </TouchableOpacity>
         </View>
 
+        {/* Ledger Summary */}
+        <View style={styles.ledgerRow}>
+          <View style={styles.ledgerCard}>
             <Text style={styles.ledgerLabel}>Total Outstanding</Text>
             <Text style={styles.ledgerValue}>₹{data?.dealer?.outstanding_amount?.toLocaleString('en-IN') || 0}</Text>
             <Text style={styles.ledgerSubtext}>Due Amount</Text>
