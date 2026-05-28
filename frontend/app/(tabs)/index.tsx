@@ -266,14 +266,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#1A231F',
   },
-  ordersContainer: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
   actionGrid: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 24 },
   actionCard: { flex: 1, backgroundColor: '#FFFFFF', padding: 16, borderRadius: 12, marginHorizontal: 4, alignItems: 'center', borderWidth: 1, borderColor: '#E5E7EB' },
   actionIcon: { width: 48, height: 48, borderRadius: 24, justifyContent: 'center', alignItems: 'center', marginBottom: 8 },
   actionText: { fontSize: 14, fontWeight: '600', color: '#1A231F' },
-
+  ordersContainer: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
     padding: 16,
     borderWidth: 1,
     borderColor: '#E5E7EB',
