@@ -160,6 +160,9 @@ frontend:
         -working: NA
         -agent: "main"
         -comment: "Implemented login and verify screens"
+        -working: false
+        -agent: "testing"
+        -comment: "CRITICAL BLOCKER: Cannot test due to red screen error. App is using react-native-maps in app/maps.tsx which is a native-only library and breaks the entire web bundle. Error: 'Importing native-only module react-native/Libraries/Utilities/codegenNativeCommands on web'. Created maps.web.tsx as platform-specific fallback but Metro is not picking it up. Need to fix Metro configuration or remove maps import from main bundle."
   - task: "Dashboard layout and data"
     implemented: true
     working: NA
@@ -171,6 +174,9 @@ frontend:
         -working: NA
         -agent: "main"
         -comment: "Implemented dashboard screen"
+        -working: false
+        -agent: "testing"
+        -comment: "CRITICAL BLOCKER: Cannot test due to red screen error caused by react-native-maps import in app/maps.tsx"
   - task: "Products Catalog"
     implemented: true
     working: NA
@@ -182,6 +188,9 @@ frontend:
         -working: NA
         -agent: "main"
         -comment: "Implemented products listing screen"
+        -working: false
+        -agent: "testing"
+        -comment: "CRITICAL BLOCKER: Cannot test due to red screen error caused by react-native-maps import in app/maps.tsx"
 backend:
   - task: "Orders fetch and AI recommend APIs"
     implemented: true

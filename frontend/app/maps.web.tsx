@@ -1,25 +1,11 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import MapView, { Marker, Circle } from 'react-native-maps';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
 export default function MapsScreen() {
   const router = useRouter();
-
-  // Mock location for dealer
-  const initialRegion = {
-    latitude: 19.0760,
-    longitude: 72.8777,
-    latitudeDelta: 0.1,
-    longitudeDelta: 0.1,
-  };
-
-  const nearbyDealers = [
-    { id: 1, title: 'Dealer A', lat: 19.0800, lng: 72.8800 },
-    { id: 2, title: 'Dealer B', lat: 19.0700, lng: 72.8700 },
-  ];
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -30,14 +16,16 @@ export default function MapsScreen() {
         <Text style={styles.headerTitle}>Network & Delivery Map</Text>
       </View>
       <View style={styles.mapContainer}>
-        <MapView style={styles.map} initialRegion={initialRegion}>
-          <Marker coordinate={{ latitude: initialRegion.latitude, longitude: initialRegion.longitude }} title="Your Store" pinColor="blue" />
-          <Circle center={{ latitude: initialRegion.latitude, longitude: initialRegion.longitude }} radius={3000} fillColor="rgba(28, 78, 51, 0.2)" strokeColor="#1C4E33" />
-          
-          {nearbyDealers.map(d => (
-            <Marker key={d.id} coordinate={{ latitude: d.lat, longitude: d.lng }} title={d.title} pinColor="green" />
-          ))}
-        </MapView>
+        <View style={styles.webMapPlaceholder}>
+          <Ionicons name="map" size={64} color="#1C4E33" />
+          <Text style={styles.webMapText}>Map View</Text>
+          <Text style={styles.webMapSubtext}>Interactive maps are available on mobile app</Text>
+          <View style={styles.webMapInfo}>
+            <Text style={styles.webMapInfoText}>📍 Your Store: Mumbai (19.0760, 72.8777)</Text>
+            <Text style={styles.webMapInfoText}>📍 Dealer A: Nearby</Text>
+            <Text style={styles.webMapInfoText}>📍 Dealer B: Nearby</Text>
+          </View>
+        </View>
       </View>
       <View style={styles.bottomCard}>
         <Text style={styles.cardTitle}>Sales Zone Coverage</Text>
@@ -53,7 +41,11 @@ const styles = StyleSheet.create({
   backBtn: { marginRight: 16 },
   headerTitle: { fontSize: 20, fontWeight: 'bold', color: '#1A231F' },
   mapContainer: { flex: 1 },
-  map: { width: '100%', height: '100%' },
+  webMapPlaceholder: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#E0F4D0', padding: 20 },
+  webMapText: { fontSize: 24, fontWeight: 'bold', color: '#1C4E33', marginTop: 16 },
+  webMapSubtext: { fontSize: 14, color: '#6B7280', marginTop: 8, textAlign: 'center' },
+  webMapInfo: { marginTop: 24, backgroundColor: '#FFFFFF', padding: 16, borderRadius: 12, width: '100%', maxWidth: 400 },
+  webMapInfoText: { fontSize: 14, color: '#1A231F', marginBottom: 8 },
   bottomCard: { position: 'absolute', bottom: 30, left: 20, right: 20, backgroundColor: '#FFFFFF', padding: 20, borderRadius: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 12, elevation: 5 },
   cardTitle: { fontSize: 16, fontWeight: 'bold', color: '#1A231F', marginBottom: 8 },
   cardDesc: { fontSize: 14, color: '#6B7280', lineHeight: 20 }
