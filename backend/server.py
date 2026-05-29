@@ -267,11 +267,39 @@ async def get_dashboard(dealer: dict = Depends(get_current_dealer)):
     return {
         "dealer": dealer_info,
         "recent_orders": orders,
-        "schemes": [
-            {"title": "Monsoon Bonanza", "description": "Get 5% extra discount on orders above ₹1,00,000", "expiry": "2025-08-30"},
-            {"title": "Seed Power", "description": "Buy 10 bags of Cotton seeds, get 1 free", "expiry": "2025-07-15"}
+        "schemes": [{"title": "Monsoon Bonanza", "description": "Get 5% extra discount", "expiry": "2025-08-30"}]
+    }
+@api_router.get("/gamification/wallet")
+async def get_wallet(dealer: dict = Depends(get_current_dealer)):
+    return {
+        "coins": 12500,
+        "lifetime_coins": 45000,
+        "rank": "Gold",
+        "xp": 8500,
+        "next_rank_xp": 10000,
+        "streak": 14,
+        "history": [
+            {"id": "1", "action": "Order Placed", "coins": "+500", "date": "2025-06-01"},
+            {"id": "2", "action": "Daily Login", "coins": "+50", "date": "2025-06-01"},
+            {"id": "3", "action": "Redeemed Voucher", "coins": "-2000", "date": "2025-05-28"}
         ]
     }
+
+@api_router.get("/network")
+async def get_network(dealer: dict = Depends(get_current_dealer)):
+    return {
+        "team_size": 12,
+        "active_downlines": 8,
+        "referral_code": "DF-GOLD-001",
+        "team_sales_mtd": 450000,
+        "commission_earned": 12500,
+        "downlines": [
+            {"id": "D-002", "name": "Suresh Kumar", "rank": "Silver", "sales": 120000},
+            {"id": "D-003", "name": "Amit Singh", "rank": "Bronze", "sales": 45000},
+            {"id": "D-004", "name": "Priya Patel", "rank": "Gold", "sales": 285000}
+        ]
+    }
+
 
 @api_router.get("/products")
 async def get_products(category: Optional[str] = None):
