@@ -122,6 +122,16 @@ const styles = StyleSheet.create({
   listContainer: { padding: Theme.spacing.lg },
   columnWrapper: { justifyContent: 'space-between', marginBottom: Theme.spacing.sm },
   skeletonGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
+  floatingScanBtn: { position: 'absolute', bottom: 20, right: 20, backgroundColor: Theme.colors.primary, width: 56, height: 56, borderRadius: 28, justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 5 },
+
+      
+      <TouchableOpacity 
+        style={styles.floatingScanBtn}
+        onPress={() => router.push('/scanner')}
+      >
+        <Ionicons name="barcode-outline" size={24} color="#FFFFFF" />
+      </TouchableOpacity>
+
   skeletonCard: { width: cardWidth, backgroundColor: Theme.colors.card, padding: Theme.spacing.sm, borderRadius: Theme.borderRadius.lg, marginBottom: Theme.spacing.sm },
   productCard: { width: cardWidth, backgroundColor: Theme.colors.card, borderRadius: Theme.borderRadius.lg, padding: Theme.spacing.sm, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
   imagePlaceholder: { width: '100%', height: 120, backgroundColor: '#F0FDF4', borderRadius: Theme.borderRadius.md, justifyContent: 'center', alignItems: 'center', marginBottom: Theme.spacing.md, overflow: 'hidden' },

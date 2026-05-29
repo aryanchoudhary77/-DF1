@@ -52,6 +52,26 @@ class Dealer(BaseModel):
     outstanding_amount: float = 0.0
     wallet_balance: float = 0.0
     created_at: datetime = Field(default_factory=datetime.utcnow)
+class Ticket(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    dealer_id: str
+    issue_type: str
+    description: str
+    status: str = "pending"
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class TicketCreate(BaseModel):
+    issue_type: str
+    description: str
+
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    dealer_code: str
+    name: str
+    mobile: str
+    credit_limit: float = 500000.0
+    outstanding_amount: float = 0.0
+    wallet_balance: float = 0.0
+    created_at: datetime = Field(default_factory=datetime.utcnow)
 
 class Product(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -215,12 +235,23 @@ async def verify_otp(req: VerifyOTPRequest):
         data={"sub": dealer["mobile"], "dealer_id": dealer["id"]}, expires_delta=access_token_expires
     )
     
-    # Write to memory for testing agent
     with open(ROOT_DIR.parent / "memory" / "test_credentials.md", "w") as f:
         f.write(f"Mobile: {req.mobile}\nOTP: 1234\n")
         
     if "_id" in dealer: dealer["_id"] = str(dealer["_id"])
     return {"access_token": access_token, "token_type": "bearer", "dealer": dealer}
+
+@api_router.post("/tickets")
+async def create_ticket(ticket_req: TicketCreate, dealer: dict = Depends(get_current_dealer)):
+    ticket = Ticket(
+        dealer_id=dealer["id"],
+        issue_type=ticket_req.issue_type,
+        description=ticket_req.description
+    )
+    await db.tickets.insert_one(ticket.dict())
+    return ticket
+
+@api_router.get("/tickets")
 
 @api_router.get("/dashboard")
 async def get_dashboard(dealer: dict = Depends(get_current_dealer)):
