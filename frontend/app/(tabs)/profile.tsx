@@ -22,17 +22,17 @@ export default function ProfileScreen() {
         <Text style={styles.headerTitle}>Account</Text>
       </View>
       
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.profileCard}>
           <View style={styles.avatarContainer}>
             <Text style={styles.avatarText}>{user?.name?.charAt(0) || 'D'}</Text>
           </View>
           <Text style={styles.name}>{user?.name}</Text>
           <Text style={styles.dealerCode}>Dealer Code: <Text style={{ fontWeight: '700' }}>{user?.dealer_code}</Text></Text>
-          <View style={styles.badge}>
+          <TouchableOpacity style={styles.badge} onPress={() => router.push('/rewards')}>
             <Ionicons name="star" size={14} color={Theme.colors.accent} />
-            <Text style={styles.badgeText}>Gold Tier Partner</Text>
-          </View>
+            <Text style={styles.badgeText}>Gold Tier Partner &gt;</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.statsRow}>
@@ -53,6 +53,28 @@ export default function ProfileScreen() {
         </View>
 
         <View style={styles.menuSection}>
+          <Text style={styles.menuHeader}>Business Hub</Text>
+          
+          <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/ledger')}>
+            <View style={styles.menuIconBox}><Ionicons name="wallet-outline" size={20} color={Theme.colors.text} /></View>
+            <Text style={styles.menuItemText}>Payments & Ledger</Text>
+            <Ionicons name="chevron-forward" size={20} color={Theme.colors.border} />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/rewards')}>
+            <View style={styles.menuIconBox}><Ionicons name="trophy-outline" size={20} color={Theme.colors.text} /></View>
+            <Text style={styles.menuItemText}>Loyalty & Rewards</Text>
+            <Ionicons name="chevron-forward" size={20} color={Theme.colors.border} />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/staff_dashboard')}>
+            <View style={styles.menuIconBox}><Ionicons name="people-outline" size={20} color={Theme.colors.text} /></View>
+            <Text style={styles.menuItemText}>Staff Operations Portal</Text>
+            <Ionicons name="chevron-forward" size={20} color={Theme.colors.border} />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.menuSection}>
           <Text style={styles.menuHeader}>Settings & Support</Text>
           
           <TouchableOpacity style={styles.menuItem}>
@@ -64,12 +86,6 @@ export default function ProfileScreen() {
           <TouchableOpacity style={styles.menuItem}>
             <View style={styles.menuIconBox}><Ionicons name="headset-outline" size={20} color={Theme.colors.text} /></View>
             <Text style={styles.menuItemText}>Support Tickets</Text>
-            <Ionicons name="chevron-forward" size={20} color={Theme.colors.border} />
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.menuItem}>
-            <View style={styles.menuIconBox}><Ionicons name="settings-outline" size={20} color={Theme.colors.text} /></View>
-            <Text style={styles.menuItemText}>Preferences</Text>
             <Ionicons name="chevron-forward" size={20} color={Theme.colors.border} />
           </TouchableOpacity>
         </View>
@@ -105,6 +121,6 @@ const styles = StyleSheet.create({
   menuItem: { flexDirection: 'row', alignItems: 'center', backgroundColor: Theme.colors.card, padding: Theme.spacing.md, borderRadius: Theme.borderRadius.lg, marginBottom: Theme.spacing.sm },
   menuIconBox: { width: 40, height: 40, borderRadius: 20, backgroundColor: Theme.colors.background, justifyContent: 'center', alignItems: 'center', marginRight: Theme.spacing.md },
   menuItemText: { flex: 1, ...Theme.typography.body, fontWeight: '500' },
-  logoutButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#FEE2E2', padding: Theme.spacing.md, borderRadius: Theme.borderRadius.lg },
+  logoutButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#FEE2E2', padding: Theme.spacing.md, borderRadius: Theme.borderRadius.lg, marginBottom: 40 },
   logoutText: { ...Theme.typography.body, color: Theme.colors.error, fontWeight: '700', marginLeft: Theme.spacing.sm }
 });
