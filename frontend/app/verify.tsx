@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback, Alert } from 'react-native';
+import { View, Text, StyleSheet, TextInput, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback, Alert, ImageBackground } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import apiClient from '@/src/api/client';
 import { useAuthStore } from '@/src/store/useAuthStore';
+import { Theme } from '@/src/theme';
+import GlassCard from '@/src/components/ui/GlassCard';
+import Button from '@/src/components/ui/Button';
 import { Ionicons } from '@expo/vector-icons';
+import { TouchableOpacity } from 'react-native';
 
 export default function VerifyScreen() {
   const { mobile } = useLocalSearchParams<{ mobile: string }>();
@@ -33,126 +37,66 @@ export default function VerifyScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <KeyboardAvoidingView 
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={styles.keyboardView}
-        >
-          <View style={styles.content}>
-            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-              <Ionicons name="arrow-back" size={24} color="#1C4E33" />
-            </TouchableOpacity>
-
-            <View style={styles.headerContainer}>
-              <Text style={styles.title}>Verify OTP</Text>
-              <Text style={styles.subtitle}>Enter the 4-digit code sent to +91 {mobile}</Text>
-              <Text style={styles.hintText}>(Use 1234 for testing)</Text>
-            </View>
-
-            <View style={styles.formContainer}>
-              <Text style={styles.label}>OTP</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="0000"
-                keyboardType="number-pad"
-                value={otp}
-                onChangeText={setOtp}
-                maxLength={4}
-                textAlign="center"
-              />
-
-              <TouchableOpacity 
-                style={[styles.button, isLoading && styles.buttonDisabled]} 
-                onPress={handleVerify}
-                disabled={isLoading}
-              >
-                <Text style={styles.buttonText}>
-                  {isLoading ? 'Verifying...' : 'Verify & Proceed'}
-                </Text>
+    <ImageBackground 
+      source={{ uri: 'https://images.unsplash.com/photo-1592982537447-6f204c3e8006?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80' }} 
+      style={styles.container}
+    >
+      <View style={styles.overlay} />
+      <SafeAreaView style={styles.safeArea}>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.keyboardView}>
+            <View style={styles.content}>
+              <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+                <Ionicons name="arrow-back" size={28} color="#FFFFFF" />
               </TouchableOpacity>
+
+              <View style={styles.headerContainer}>
+                <Text style={styles.title}>Verify OTP</Text>
+                <Text style={styles.subtitle}>Sent to +91 {mobile}</Text>
+                <Text style={styles.hintText}>(Testing OTP: 1234)</Text>
+              </View>
+
+              <GlassCard intensity={80} style={styles.formContainer}>
+                <Text style={styles.label}>Enter 4-digit Code</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="0 0 0 0"
+                  placeholderTextColor={Theme.colors.textSecondary}
+                  keyboardType="number-pad"
+                  value={otp}
+                  onChangeText={setOtp}
+                  maxLength={4}
+                  textAlign="center"
+                />
+
+                <Button 
+                  title="Verify & Proceed"
+                  onPress={handleVerify}
+                  isLoading={isLoading}
+                  style={styles.button}
+                />
+              </GlassCard>
             </View>
-          </View>
-        </KeyboardAvoidingView>
-      </TouchableWithoutFeedback>
-    </SafeAreaView>
+          </KeyboardAvoidingView>
+        </TouchableWithoutFeedback>
+      </SafeAreaView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F9F1',
-  },
-  keyboardView: {
-    flex: 1,
-  },
-  content: {
-    flex: 1,
-    padding: 24,
-  },
-  backButton: {
-    marginBottom: 24,
-    marginTop: 12,
-  },
-  headerContainer: {
-    marginBottom: 48,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#1C4E33',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#6B7280',
-    marginBottom: 4,
-  },
-  hintText: {
-    fontSize: 14,
-    color: '#A3D868',
-    fontWeight: 'bold',
-  },
-  formContainer: {
-    backgroundColor: '#FFFFFF',
-    padding: 24,
-    borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1A231F',
-    marginBottom: 8,
-  },
-  input: {
-    backgroundColor: '#F3F4F6',
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    borderRadius: 8,
-    padding: 16,
-    fontSize: 24,
-    letterSpacing: 8,
-    fontWeight: 'bold',
-    marginBottom: 24,
-  },
-  button: {
-    backgroundColor: '#1C4E33',
-    padding: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  buttonDisabled: {
-    backgroundColor: '#9CA3AF',
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
+  container: { flex: 1 },
+  overlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(15, 76, 58, 0.8)' },
+  safeArea: { flex: 1 },
+  keyboardView: { flex: 1 },
+  content: { flex: 1, padding: Theme.spacing.lg },
+  backButton: { marginBottom: Theme.spacing.xl, marginTop: Theme.spacing.sm },
+  headerContainer: { marginBottom: Theme.spacing.xxl },
+  title: { ...Theme.typography.h1, color: '#FFFFFF', marginBottom: Theme.spacing.xs },
+  subtitle: { ...Theme.typography.body, color: 'rgba(255, 255, 255, 0.8)', marginBottom: Theme.spacing.xs },
+  hintText: { ...Theme.typography.small, color: Theme.colors.accent },
+  formContainer: { padding: Theme.spacing.xl, borderRadius: Theme.borderRadius.xl },
+  label: { ...Theme.typography.small, color: '#FFFFFF', marginBottom: Theme.spacing.sm, textTransform: 'uppercase', letterSpacing: 1, textAlign: 'center' },
+  input: { backgroundColor: 'rgba(255, 255, 255, 0.1)', borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.2)', borderRadius: Theme.borderRadius.md, padding: Theme.spacing.lg, fontSize: 32, letterSpacing: 16, fontWeight: 'bold', color: '#FFFFFF', marginBottom: Theme.spacing.xl },
+  button: { marginTop: Theme.spacing.sm },
 });

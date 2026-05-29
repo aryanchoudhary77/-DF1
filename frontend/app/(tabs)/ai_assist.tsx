@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, TextInput, ScrollView, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import apiClient from '@/src/api/client';
+import { Theme } from '@/src/theme';
+import Button from '@/src/components/ui/Button';
 
 export default function AIAssistScreen() {
   const [form, setForm] = useState({ crop_type: '', disease: '', season: '', region: '' });
@@ -10,8 +12,9 @@ export default function AIAssistScreen() {
   const [isLoading, setIsLoading] = useState(false);
 
   const getRecommendation = async () => {
-    if (!form.crop_type) return;
+    if (!form.crop_type || !form.disease) return;
     setIsLoading(true);
+    Keyboard.dismiss();
     try {
       const res = await apiClient.post('/ai/recommend', form);
       setRecommendation(res.data.recommendation);
@@ -27,38 +30,59 @@ export default function AIAssistScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>AI Recommendation</Text>
+          <Text style={styles.headerTitle}>AI Copilot</Text>
+          <Ionicons name="sparkles" size={24} color={Theme.colors.accent} />
         </View>
-        <ScrollView contentContainerStyle={styles.content}>
+        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+          
           <View style={styles.card}>
             <View style={styles.iconHeader}>
-              <Ionicons name="leaf-outline" size={24} color="#1C4E33" />
-              <Text style={styles.cardTitle}>Crop Issue Details</Text>
+              <View style={styles.iconCircle}>
+                <Ionicons name="leaf-outline" size={20} color={Theme.colors.primary} />
+              </View>
+              <View>
+                <Text style={styles.cardTitle}>Crop Diagnosis</Text>
+                <Text style={styles.cardSub}>Describe the issue to get smart recommendations</Text>
+              </View>
             </View>
 
             <Text style={styles.label}>Crop Type</Text>
-            <TextInput style={styles.input} placeholder="e.g. Cotton, Paddy" value={form.crop_type} onChangeText={t => setForm({...form, crop_type: t})} />
+            <TextInput style={styles.input} placeholder="e.g. Cotton, Paddy" value={form.crop_type} onChangeText={t => setForm({...form, crop_type: t})} placeholderTextColor={Theme.colors.textSecondary} />
 
-            <Text style={styles.label}>Disease / Problem</Text>
-            <TextInput style={styles.input} placeholder="e.g. Yellow leaves, Pests" value={form.disease} onChangeText={t => setForm({...form, disease: t})} />
+            <Text style={styles.label}>Disease / Problem Symptoms</Text>
+            <TextInput style={[styles.input, styles.textArea]} placeholder="e.g. Yellow leaves, Pests" value={form.disease} onChangeText={t => setForm({...form, disease: t})} multiline numberOfLines={3} placeholderTextColor={Theme.colors.textSecondary} />
 
-            <Text style={styles.label}>Season</Text>
-            <TextInput style={styles.input} placeholder="e.g. Monsoon, Rabi" value={form.season} onChangeText={t => setForm({...form, season: t})} />
+            <View style={styles.row}>
+              <View style={styles.half}>
+                <Text style={styles.label}>Season</Text>
+                <TextInput style={styles.input} placeholder="e.g. Rabi" value={form.season} onChangeText={t => setForm({...form, season: t})} placeholderTextColor={Theme.colors.textSecondary} />
+              </View>
+              <View style={styles.half}>
+                <Text style={styles.label}>Region</Text>
+                <TextInput style={styles.input} placeholder="e.g. Punjab" value={form.region} onChangeText={t => setForm({...form, region: t})} placeholderTextColor={Theme.colors.textSecondary} />
+              </View>
+            </View>
 
-            <Text style={styles.label}>Region</Text>
-            <TextInput style={styles.input} placeholder="e.g. Maharashtra, Punjab" value={form.region} onChangeText={t => setForm({...form, region: t})} />
-
-            <TouchableOpacity style={styles.btn} onPress={getRecommendation} disabled={isLoading}>
-              {isLoading ? <ActivityIndicator color="#FFF" /> : <Text style={styles.btnText}>Analyze & Recommend</Text>}
-            </TouchableOpacity>
+            <Button 
+              title="Analyze & Recommend"
+              onPress={getRecommendation}
+              isLoading={isLoading}
+              icon={<Ionicons name="analytics" size={20} color="#FFF" />}
+              style={{ marginTop: Theme.spacing.md }}
+            />
           </View>
 
           {recommendation && (
             <View style={styles.resultCard}>
-              <Text style={styles.resultTitle}>AI Insights</Text>
+              <View style={styles.resultHeader}>
+                <Ionicons name="bulb-outline" size={24} color={Theme.colors.primary} />
+                <Text style={styles.resultTitle}>AI Insights</Text>
+              </View>
               <Text style={styles.resultText}>{recommendation}</Text>
+              <Button title="Add Suggested to Cart" onPress={() => {}} variant="outline" style={{ marginTop: 16 }} />
             </View>
           )}
+
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -66,18 +90,22 @@ export default function AIAssistScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F9F1' },
-  header: { padding: 20, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#E5E7EB' },
-  headerTitle: { fontSize: 24, fontWeight: 'bold', color: '#1A231F' },
-  content: { padding: 16 },
-  card: { backgroundColor: '#FFFFFF', padding: 20, borderRadius: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2, marginBottom: 16 },
-  iconHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
-  cardTitle: { fontSize: 18, fontWeight: 'bold', color: '#1A231F', marginLeft: 8 },
-  label: { fontSize: 14, fontWeight: '600', color: '#4B5563', marginBottom: 8 },
-  input: { backgroundColor: '#F9FAFB', borderWidth: 1, borderColor: '#E5E7EB', borderRadius: 8, padding: 12, marginBottom: 16, fontSize: 16 },
-  btn: { backgroundColor: '#1C4E33', padding: 16, borderRadius: 12, alignItems: 'center', marginTop: 8 },
-  btnText: { color: '#FFFFFF', fontSize: 16, fontWeight: 'bold' },
-  resultCard: { backgroundColor: '#E0F4D0', padding: 20, borderRadius: 16, borderWidth: 1, borderColor: '#A3D868' },
-  resultTitle: { fontSize: 18, fontWeight: 'bold', color: '#1C4E33', marginBottom: 12 },
-  resultText: { fontSize: 16, color: '#1A231F', lineHeight: 24 }
+  container: { flex: 1, backgroundColor: Theme.colors.background },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: Theme.spacing.lg, backgroundColor: Theme.colors.card, borderBottomWidth: 1, borderBottomColor: Theme.colors.border },
+  headerTitle: { ...Theme.typography.h2 },
+  content: { padding: Theme.spacing.lg },
+  card: { backgroundColor: Theme.colors.card, padding: Theme.spacing.xl, borderRadius: Theme.borderRadius.xl, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 12, elevation: 3, marginBottom: Theme.spacing.lg },
+  iconHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: Theme.spacing.xl },
+  iconCircle: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#F0FDF4', justifyContent: 'center', alignItems: 'center', marginRight: Theme.spacing.md },
+  cardTitle: { ...Theme.typography.h3 },
+  cardSub: { ...Theme.typography.caption },
+  label: { ...Theme.typography.small, color: Theme.colors.text, marginBottom: Theme.spacing.xs },
+  input: { backgroundColor: Theme.colors.background, borderWidth: 1, borderColor: Theme.colors.border, borderRadius: Theme.borderRadius.md, padding: Theme.spacing.md, marginBottom: Theme.spacing.lg, ...Theme.typography.body },
+  textArea: { height: 80, textAlignVertical: 'top' },
+  row: { flexDirection: 'row', gap: Theme.spacing.md },
+  half: { flex: 1 },
+  resultCard: { backgroundColor: '#F0FDF4', padding: Theme.spacing.xl, borderRadius: Theme.borderRadius.xl, borderWidth: 1, borderColor: '#A3D868', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 12, elevation: 3 },
+  resultHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: Theme.spacing.md, gap: Theme.spacing.sm },
+  resultTitle: { ...Theme.typography.h3, color: Theme.colors.primary },
+  resultText: { ...Theme.typography.body, lineHeight: 24, color: Theme.colors.text }
 });

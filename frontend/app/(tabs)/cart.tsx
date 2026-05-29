@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCartStore } from '@/src/store/useCartStore';
 import { Ionicons } from '@expo/vector-icons';
 import apiClient from '@/src/api/client';
 import { useRouter } from 'expo-router';
+import { Theme } from '@/src/theme';
+import Button from '@/src/components/ui/Button';
 
 export default function CartScreen() {
   const { items, updateQuantity, removeItem, getTotal, clearCart } = useCartStore();
@@ -34,14 +36,14 @@ export default function CartScreen() {
       </View>
       <View style={styles.quantityControl}>
         <TouchableOpacity onPress={() => updateQuantity(item.product_id, Math.max(1, item.quantity - 1))} style={styles.qtyBtn}>
-          <Ionicons name="remove" size={16} color="#1A231F" />
+          <Ionicons name="remove" size={16} color={Theme.colors.text} />
         </TouchableOpacity>
         <Text style={styles.qtyText}>{item.quantity}</Text>
         <TouchableOpacity onPress={() => updateQuantity(item.product_id, item.quantity + 1)} style={styles.qtyBtn}>
-          <Ionicons name="add" size={16} color="#1A231F" />
+          <Ionicons name="add" size={16} color={Theme.colors.text} />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => removeItem(item.product_id)} style={styles.removeBtn}>
-          <Ionicons name="trash-outline" size={20} color="#DC2626" />
+          <Ionicons name="trash-outline" size={20} color={Theme.colors.error} />
         </TouchableOpacity>
       </View>
     </View>
@@ -50,13 +52,16 @@ export default function CartScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Cart & Checkout</Text>
+        <Text style={styles.headerTitle}>Checkout</Text>
       </View>
 
       {items.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <Ionicons name="cart-outline" size={64} color="#D1D5DB" />
-          <Text style={styles.emptyText}>Your cart is empty</Text>
+          <View style={styles.emptyIconCircle}>
+            <Ionicons name="cart-outline" size={48} color={Theme.colors.primary} />
+          </View>
+          <Text style={styles.emptyTitle}>Your cart is empty</Text>
+          <Text style={styles.emptyText}>Add some agricultural products to proceed.</Text>
         </View>
       ) : (
         <>
@@ -65,23 +70,18 @@ export default function CartScreen() {
             keyExtractor={(item) => item.product_id}
             renderItem={renderItem}
             contentContainerStyle={styles.listContainer}
+            showsVerticalScrollIndicator={false}
           />
           <View style={styles.footer}>
             <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>Total Amount:</Text>
-              <Text style={styles.totalValue}>₹{getTotal()}</Text>
+              <Text style={styles.totalLabel}>Grand Total</Text>
+              <Text style={styles.totalValue}>₹{getTotal().toLocaleString('en-IN')}</Text>
             </View>
-            <TouchableOpacity 
-              style={[styles.checkoutBtn, isSubmitting && styles.checkoutBtnDisabled]} 
+            <Button 
+              title="Place Order"
               onPress={handleCheckout}
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <ActivityIndicator color="#FFF" />
-              ) : (
-                <Text style={styles.checkoutBtnText}>Place Order</Text>
-              )}
-            </TouchableOpacity>
+              isLoading={isSubmitting}
+            />
           </View>
         </>
       )}
@@ -90,25 +90,24 @@ export default function CartScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F9F1' },
-  header: { padding: 20, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#E5E7EB' },
-  headerTitle: { fontSize: 24, fontWeight: 'bold', color: '#1A231F' },
-  emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  emptyText: { marginTop: 16, fontSize: 16, color: '#6B7280' },
-  listContainer: { padding: 16 },
-  cartItem: { backgroundColor: '#FFFFFF', padding: 16, borderRadius: 12, marginBottom: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 1 },
-  itemInfo: { flex: 1 },
-  itemTitle: { fontSize: 16, fontWeight: '600', color: '#1A231F', marginBottom: 4 },
-  itemPrice: { fontSize: 14, color: '#1C4E33', fontWeight: 'bold' },
+  container: { flex: 1, backgroundColor: Theme.colors.background },
+  header: { padding: Theme.spacing.lg, backgroundColor: Theme.colors.card, borderBottomWidth: 1, borderBottomColor: Theme.colors.border },
+  headerTitle: { ...Theme.typography.h2 },
+  emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: Theme.spacing.xxl },
+  emptyIconCircle: { width: 96, height: 96, borderRadius: 48, backgroundColor: '#F0FDF4', justifyContent: 'center', alignItems: 'center', marginBottom: Theme.spacing.lg },
+  emptyTitle: { ...Theme.typography.h3, marginBottom: Theme.spacing.xs },
+  emptyText: { ...Theme.typography.body, color: Theme.colors.textSecondary, textAlign: 'center' },
+  listContainer: { padding: Theme.spacing.lg },
+  cartItem: { backgroundColor: Theme.colors.card, padding: Theme.spacing.lg, borderRadius: Theme.borderRadius.lg, marginBottom: Theme.spacing.sm, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
+  itemInfo: { flex: 1, marginRight: Theme.spacing.md },
+  itemTitle: { ...Theme.typography.body, fontWeight: '600', marginBottom: 4 },
+  itemPrice: { ...Theme.typography.h3, color: Theme.colors.primary },
   quantityControl: { flexDirection: 'row', alignItems: 'center' },
-  qtyBtn: { backgroundColor: '#F3F4F6', padding: 8, borderRadius: 8 },
-  qtyText: { marginHorizontal: 12, fontSize: 16, fontWeight: '600' },
-  removeBtn: { marginLeft: 16, padding: 8 },
-  footer: { backgroundColor: '#FFFFFF', padding: 20, borderTopWidth: 1, borderTopColor: '#E5E7EB' },
-  totalRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16 },
-  totalLabel: { fontSize: 18, color: '#6B7280', fontWeight: '600' },
-  totalValue: { fontSize: 24, color: '#1A231F', fontWeight: 'bold' },
-  checkoutBtn: { backgroundColor: '#1C4E33', padding: 16, borderRadius: 12, alignItems: 'center' },
-  checkoutBtnDisabled: { backgroundColor: '#9CA3AF' },
-  checkoutBtnText: { color: '#FFFFFF', fontSize: 18, fontWeight: 'bold' }
+  qtyBtn: { backgroundColor: Theme.colors.background, width: 32, height: 32, borderRadius: 16, justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: Theme.colors.border },
+  qtyText: { marginHorizontal: 12, ...Theme.typography.h3 },
+  removeBtn: { marginLeft: 16, padding: 8, backgroundColor: '#FEE2E2', borderRadius: 8 },
+  footer: { backgroundColor: Theme.colors.card, padding: Theme.spacing.lg, borderTopWidth: 1, borderTopColor: Theme.colors.border, paddingBottom: Theme.spacing.xl },
+  totalRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: Theme.spacing.lg },
+  totalLabel: { ...Theme.typography.body, color: Theme.colors.textSecondary },
+  totalValue: { ...Theme.typography.h1, color: Theme.colors.primary },
 });

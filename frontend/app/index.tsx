@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback, Alert } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback, Alert, ImageBackground } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import apiClient from '@/src/api/client';
+import { Theme } from '@/src/theme';
+import GlassCard from '@/src/components/ui/GlassCard';
+import Button from '@/src/components/ui/Button';
 
 export default function LoginScreen() {
   const [mobile, setMobile] = useState('');
@@ -18,7 +21,6 @@ export default function LoginScreen() {
     setIsLoading(true);
     try {
       await apiClient.post('/auth/login', { mobile });
-      // Proceed to OTP screen
       router.push({ pathname: '/verify', params: { mobile } });
     } catch (error: any) {
       Alert.alert('Login Failed', error.response?.data?.detail || 'An error occurred');
@@ -28,110 +30,66 @@ export default function LoginScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <KeyboardAvoidingView 
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={styles.keyboardView}
-        >
-          <View style={styles.content}>
-            <View style={styles.headerContainer}>
-              <Text style={styles.title}>DreamField</Text>
-              <Text style={styles.subtitle}>Agri Solutions Dealer Portal</Text>
-            </View>
+    <ImageBackground 
+      source={{ uri: 'https://images.unsplash.com/photo-1592982537447-6f204c3e8006?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80' }} 
+      style={styles.container}
+    >
+      <View style={styles.overlay} />
+      <SafeAreaView style={styles.safeArea}>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <KeyboardAvoidingView 
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={styles.keyboardView}
+          >
+            <View style={styles.content}>
+              <View style={styles.headerContainer}>
+                <Text style={styles.title}>DreamField</Text>
+                <Text style={styles.subtitle}>Agri Solutions Dealer Portal</Text>
+              </View>
 
-            <View style={styles.formContainer}>
-              <Text style={styles.label}>Mobile Number</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Enter 10-digit mobile number"
-                keyboardType="phone-pad"
-                value={mobile}
-                onChangeText={setMobile}
-                maxLength={10}
-              />
+              <GlassCard intensity={80} style={styles.formContainer}>
+                <Text style={styles.label}>Mobile Number</Text>
+                <View style={styles.inputWrapper}>
+                  <Text style={styles.prefix}>+91</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Enter mobile number"
+                    placeholderTextColor={Theme.colors.textSecondary}
+                    keyboardType="phone-pad"
+                    value={mobile}
+                    onChangeText={setMobile}
+                    maxLength={10}
+                  />
+                </View>
 
-              <TouchableOpacity 
-                style={[styles.button, isLoading && styles.buttonDisabled]} 
-                onPress={handleLogin}
-                disabled={isLoading}
-              >
-                <Text style={styles.buttonText}>
-                  {isLoading ? 'Sending OTP...' : 'Get OTP'}
-                </Text>
-              </TouchableOpacity>
+                <Button 
+                  title="Continue securely"
+                  onPress={handleLogin}
+                  isLoading={isLoading}
+                  style={styles.button}
+                />
+              </GlassCard>
             </View>
-          </View>
-        </KeyboardAvoidingView>
-      </TouchableWithoutFeedback>
-    </SafeAreaView>
+          </KeyboardAvoidingView>
+        </TouchableWithoutFeedback>
+      </SafeAreaView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F9F1',
-  },
-  keyboardView: {
-    flex: 1,
-  },
-  content: {
-    flex: 1,
-    padding: 24,
-    justifyContent: 'center',
-  },
-  headerContainer: {
-    alignItems: 'center',
-    marginBottom: 48,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#1C4E33',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#6B7280',
-  },
-  formContainer: {
-    backgroundColor: '#FFFFFF',
-    padding: 24,
-    borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1A231F',
-    marginBottom: 8,
-  },
-  input: {
-    backgroundColor: '#F3F4F6',
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    borderRadius: 8,
-    padding: 16,
-    fontSize: 16,
-    marginBottom: 24,
-  },
-  button: {
-    backgroundColor: '#1C4E33',
-    padding: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  buttonDisabled: {
-    backgroundColor: '#9CA3AF',
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
+  container: { flex: 1 },
+  overlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(15, 76, 58, 0.7)' },
+  safeArea: { flex: 1 },
+  keyboardView: { flex: 1 },
+  content: { flex: 1, padding: Theme.spacing.lg, justifyContent: 'center' },
+  headerContainer: { alignItems: 'center', marginBottom: Theme.spacing.xxl },
+  title: { ...Theme.typography.h1, color: '#FFFFFF', marginBottom: Theme.spacing.xs, fontSize: 40 },
+  subtitle: { ...Theme.typography.body, color: 'rgba(255, 255, 255, 0.8)' },
+  formContainer: { padding: Theme.spacing.xl, borderRadius: Theme.borderRadius.xl },
+  label: { ...Theme.typography.small, color: '#FFFFFF', marginBottom: Theme.spacing.sm, textTransform: 'uppercase', letterSpacing: 1 },
+  inputWrapper: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255, 255, 255, 0.1)', borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.2)', borderRadius: Theme.borderRadius.md, marginBottom: Theme.spacing.xl, paddingHorizontal: Theme.spacing.md },
+  prefix: { ...Theme.typography.h3, color: '#FFFFFF', marginRight: Theme.spacing.sm },
+  input: { flex: 1, paddingVertical: Theme.spacing.lg, ...Theme.typography.h3, color: '#FFFFFF' },
+  button: { marginTop: Theme.spacing.sm },
 });
